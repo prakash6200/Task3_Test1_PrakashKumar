@@ -1,24 +1,29 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.17;
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 
-// BDOLA Token Contract
-contract BDOLA is ERC20 {
-    address public admin;
-
-    constructor(uint256 initialSupply) ERC20("BDOLA Token", "BDOLA") {
-        admin = msg.sender;
-        _mint(msg.sender, initialSupply * 10 ** 18);
+contract BDOLA is ERC20, Ownable {
+    constructor(uint256 initialSupply) ERC20("BDOLA Token", "BDOLA") Ownable(msg.sender) {
+        _mint(msg.sender, initialSupply * (10 ** decimals()));
     }
 
-    function burn(address from, uint256 amount) external {
-        require(msg.sender == admin, "Only admin can burn tokens");
-        _burn(from, amount);
+    /**
+     * @dev Mint new BDOLA tokens (only owner).
+     * @param account Address to mint tokens to.
+     * @param amount Number of tokens to mint.
+     */
+    function mint(address account, uint256 amount) external onlyOwner {
+        _mint(account, amount);
     }
 
-    function mint(address to, uint256 amount) external {
-        require(msg.sender == admin, "Only admin can mint tokens");
-        _mint(to, amount);
+    /**
+     * @dev Burn BDOLA tokens (only owner).
+     * @param account Address to burn tokens from.
+     * @param amount Number of tokens to burn.
+     */
+    function burn(address account, uint256 amount) external onlyOwner {
+        _burn(account, amount);
     }
 }
